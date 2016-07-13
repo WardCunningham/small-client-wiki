@@ -1,0 +1,93 @@
+<!-- DOCTYPE HTML -->
+<html>
+<head>
+<title>Federated Wiki</title>
+</head>
+<body>
+
+<style>
+.page {width: 420px; margin: 8px; padding: 35px; border: 1px;}
+</style>
+
+<div id="content"></div>
+<script src="https://fb.me/react-0.14.6.js"></script>
+<script src="https://fb.me/react-dom-0.14.6.js"></script>
+<script src="http://fb.me/JSXTransformer-0.12.1.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script type="text/jsx">
+
+
+var Remote = React.createClass({
+    // https://facebook.github.io/react/tips/initial-ajax.html
+    getInitialState: function() {
+        return {
+          title: this.props.slug,
+          story: []
+        };
+      },
+    componentDidMount: function() {
+        var source = 'http://' + this.props.site + '/' + this.props.slug + '.json'
+        this.serverRequest = $.get(source, function (result) {
+            this.setState({
+                title: result.title,
+                story: result.story
+            });
+        }.bind(this));
+    },
+    componentWillUnmount: function() {
+        this.serverRequest.abort();
+    },
+    render: function(){
+        return (
+            <div>
+                <Page 
+                    title={this.state.title}
+                    story={this.state.story} />
+                <Footer
+                    details={[this.props.site, this.props.slug]} />
+            </div>
+        );
+    }
+});
+
+var Page = React.createClass({
+    render: function(){
+        function item (itemx, index){ return (<Item key={index} type={itemx.type} text={itemx.text} />); }
+        return (
+            <div className="page">              
+                <h2>{this.props.title}</h2>
+                {this.props.story.map(item)}
+            </div>
+        );
+    }
+});
+
+var Item = React.createClass({
+    render: function(){
+        return (
+            <div className="item" className={this.props.type}>
+                <p>{this.props.text}</p>
+            </div>
+        );
+    }
+})
+
+var Footer = React.createClass({
+    render: function(){
+        function li (detail, index){ return (<li key={index}>{detail}</li>); }
+        return (
+        	<div>
+            	{this.props.details.map(li)}
+            </div>
+        );
+    }
+});
+
+ReactDOM.render(
+    <Remote site='ward.bay.wiki.org' slug='speech-acts' />,
+    document.getElementById('content'
+));
+
+</script>
+</body>
+</html>
