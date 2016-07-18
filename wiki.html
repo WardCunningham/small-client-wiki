@@ -40,7 +40,7 @@ var Remote = React.createClass({
     render: function(){
         return (
             <div>
-                <Page 
+                <Page
                     title={this.state.title}
                     story={this.state.story} />
                 <Footer
@@ -52,9 +52,12 @@ var Remote = React.createClass({
 
 var Page = React.createClass({
     render: function(){
-        function item (itemx, index){ return (<Item key={index} type={itemx.type} text={itemx.text} />); }
+        function item (item, index){
+          return (<Item key={index} type={item.type} text={item.text} />);
+        }
+
         return (
-            <div className="page">              
+            <div className="page">
                 <h2>{this.props.title}</h2>
                 {this.props.story.map(item)}
             </div>
@@ -64,12 +67,39 @@ var Page = React.createClass({
 
 var Item = React.createClass({
     render: function(){
+        function splitText(text) {
+          return text.split(/(\[https?:.*? .*?\])/)
+        }
+
+        function span(split, index) {
+          if (split[0] == "[") {
+            return <ExternalLink key={index} text={split} />
+          }
+          else {
+            return <PlainText key={index} text={split} />
+          }
+        }
+
+        var spans = splitText(this.props.text)
         return (
             <div className="item" className={this.props.type}>
-                <p>{this.props.text}</p>
+                <p>{spans.map(span)}</p>
             </div>
         );
     }
+})
+
+var PlainText = React.createClass({
+  render: function() {
+    return <span>{this.props.text}</span>
+  }
+})
+
+var ExternalLink = React.createClass({
+  render: function() {
+    var m = this.props.text.match(/\[(https?:.*?) (.*?)\]/)
+    return <a href={m[1]}>{m[2]} <img src="external-link-ltr-icon.png" /></a>
+  }
 })
 
 var Footer = React.createClass({
@@ -78,13 +108,13 @@ var Footer = React.createClass({
         return (
         	<div>
             	{this.props.details.map(li)}
-            </div>
+          </div>
         );
     }
 });
 
 ReactDOM.render(
-    <Remote site='ward.bay.wiki.org' slug='speech-acts' />,
+    <Remote site='wiki.robotlikes.com' slug='talks-to-watch' />,
     document.getElementById('content'
 ));
 
