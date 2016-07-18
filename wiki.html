@@ -53,7 +53,8 @@ var Remote = React.createClass({
 var Page = React.createClass({
     render: function(){
         function item (item, index){
-          return (<Item key={index} type={item.type} text={item.text} />);
+          var I = plugins[item.type] || Paragraph
+          return (<I key={index} type={item.type} text={item.text} />);
         }
 
         return (
@@ -65,7 +66,7 @@ var Page = React.createClass({
     }
 });
 
-var Item = React.createClass({
+var Paragraph = React.createClass({
     render: function(){
         function splitText(text) {
           return text.split(/(\[https?:.*? .*?\])/)
@@ -88,6 +89,10 @@ var Item = React.createClass({
         );
     }
 })
+
+var plugins = {
+  "paragraph": Paragraph
+}
 
 var PlainText = React.createClass({
   render: function() {
