@@ -16,6 +16,21 @@
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 <script type="text/jsx">
 
+var Lineup = React.createClass({
+  render: function() {
+    function toSegment(pair) {
+      return <Remote site={pair[0]} slug={pair[1]} />
+    }
+
+    var pairs = []
+    var segments = this.props.lineup.split("/")
+    for (i = 0; i < segments.length; i += 2) {
+      pairs.push([segments[i], segments[i + 1]])
+    }
+
+    return <div>{pairs.map(toSegment)}</div>
+  }
+})
 
 var Remote = React.createClass({
     // https://facebook.github.io/react/tips/initial-ajax.html
@@ -119,9 +134,9 @@ var Footer = React.createClass({
 });
 
 ReactDOM.render(
-    <Remote site='wiki.robotlikes.com' slug='talks-to-watch' />,
-    document.getElementById('content'
-));
+  <Lineup lineup={window.location.hash.replace("#", "")} />,
+  document.getElementById('content')
+);
 
 </script>
 </body>
