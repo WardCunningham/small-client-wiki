@@ -1,7 +1,8 @@
 <!-- DOCTYPE HTML -->
 <html>
 <head>
-<title>Federated Wiki</title>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <title>Federated Wiki</title>
 </head>
 <body>
 
@@ -19,7 +20,7 @@
 var Lineup = React.createClass({
   render: function() {
     function toSegment(pair) {
-      return <Remote site={pair[0]} slug={pair[1]} />
+      return <Remote key={pair[1]} site={pair[0]} slug={pair[1]} />
     }
 
     var pairs = []
@@ -69,7 +70,7 @@ var Page = React.createClass({
     render: function(){
         function item (item, index){
           var I = plugins[item.type] || Paragraph
-          return (<I key={index} type={item.type} text={item.text} />);
+          return (<I key={item.id} item={item} />);
         }
 
         return (
@@ -96,9 +97,9 @@ var Paragraph = React.createClass({
           }
         }
 
-        var spans = splitText(this.props.text)
+        var spans = splitText(this.props.item.text)
         return (
-            <div className="item" className={this.props.type}>
+            <div className="item" className={this.props.item.type}>
                 <p>{spans.map(span)}</p>
             </div>
         );
