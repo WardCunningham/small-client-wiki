@@ -1,5 +1,6 @@
 import React from 'react'
-import $ from 'jquery'
+require('es6-promise').polyfill()
+require('isomorphic-fetch')
 
 import { Page } from './page'
 import { Footer } from './footer'
@@ -14,15 +15,14 @@ export const Remote = React.createClass({
       },
     componentDidMount: function() {
         var source = 'http://' + this.props.site + '/' + this.props.slug + '.json'
-        this.serverRequest = $.get(source, function (result) {
+        fetch(source)
+          .then((result) => result.json())
+          .then((result) => {
             this.setState({
                 title: result.title,
                 story: result.story
             });
-        }.bind(this));
-    },
-    componentWillUnmount: function() {
-        this.serverRequest.abort();
+        })
     },
     render: function(){
         return (
