@@ -1,35 +1,22 @@
-<!-- DOCTYPE HTML -->
-<html>
-<head>
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-  <title>Federated Wiki</title>
-</head>
-<body>
+import React from 'react'
+import { render } from 'react-dom'
+import $ from 'jquery'
 
-<style>
-.page {width: 420px; margin: 8px; padding: 35px; border: 1px;}
-</style>
-
-<div id="content"></div>
-<script src="https://fb.me/react-0.14.6.js"></script>
-<script src="https://fb.me/react-dom-0.14.6.js"></script>
-<script src="http://fb.me/JSXTransformer-0.12.1.js"></script>
-<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
-<script type="text/jsx">
+require('./style/index.css')
 
 var Lineup = React.createClass({
   render: function() {
-    function toSegment(pair) {
-      return <Remote key={pair[1]} site={pair[0]} slug={pair[1]} />
-    }
-
-    var pairs = []
     var segments = this.props.lineup.split("/")
-    for (i = 0; i < segments.length; i += 2) {
+    var pairs = []
+    for (var i = 0; i < segments.length; i += 2) {
       pairs.push([segments[i], segments[i + 1]])
     }
 
-    return <div>{pairs.map(toSegment)}</div>
+    return (
+      <div>
+        { pairs.map((pair) => <Remote key={pair[1]} site={pair[0]} slug={pair[1]} />) }
+      </div>
+    )
   }
 })
 
@@ -160,11 +147,7 @@ var Footer = React.createClass({
     }
 });
 
-ReactDOM.render(
+render(
   <Lineup lineup={window.location.hash.replace("#", "")} />,
-  document.getElementById('content')
+  document.getElementById('federated-wiki')
 );
-
-</script>
-</body>
-</html>

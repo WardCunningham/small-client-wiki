@@ -1,0 +1,32 @@
+{
+  "name": "small-client-wiki",
+  "version": "1.0.0",
+  "description": "We explore a read-only client written in react.",
+  "main": "index.js",
+  "scripts": {
+    "build": "reactpack index.js",
+    "start": "reactpack --dev index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WardCunningham/small-client-wiki.git"
+  },
+  "keywords": [
+    "wiki",
+    "react"
+  ],
+  "author": "wikiwiki",
+  "license": "?",
+  "bugs": {
+    "url": "https://github.com/WardCunningham/small-client-wiki/issues"
+  },
+  "homepage": "https://github.com/WardCunningham/small-client-wiki#readme",
+  "dependencies": {
+    "jquery": "^3.1.0",
+    "react": "^15.2.1",
+    "react-dom": "^15.2.1"
+  },
+  "devDependencies": {
+    "reactpack": "^0.7.3"
+  }
+}
