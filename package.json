@@ -4,8 +4,9 @@
   "description": "We explore a read-only client written in react.",
   "main": "index.js",
   "scripts": {
-    "build": "reactpack index.js",
-    "start": "reactpack --dev index.js"
+    "build": "reactpack ./src/index.js",
+    "start": "reactpack --dev ./src/index.js",
+    "lint": "eslint ./src"
   },
   "repository": {
     "type": "git",

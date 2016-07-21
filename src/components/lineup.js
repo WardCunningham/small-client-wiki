@@ -4,7 +4,7 @@ import { Remote } from './remote'
 
 export const Lineup = React.createClass({
   render: function() {
-    var segments = this.props.lineup.split("/")
+    var segments = this.props.lineup.split('/')
     var pairs = []
     for (var i = 0; i < segments.length; i += 2) {
       pairs.push([segments[i], segments[i + 1]])

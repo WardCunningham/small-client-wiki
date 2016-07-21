@@ -9,7 +9,7 @@ export const Paragraph = React.createClass({
         }
 
         function span(split, index) {
-          if (split[0] == "[") {
+          if (split[0] == '[') {
             return <ExternalLink key={index} text={split} />
           }
           else {

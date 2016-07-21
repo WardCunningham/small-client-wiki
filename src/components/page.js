@@ -4,8 +4,8 @@ import { Paragraph } from './plugins/paragraph'
 import { Reference } from './plugins/reference'
 
 const plugins = {
-  "paragraph": Paragraph,
-  "reference": Reference,
+  'paragraph': Paragraph,
+  'reference': Reference,
 }
 
 export const Page = React.createClass({
