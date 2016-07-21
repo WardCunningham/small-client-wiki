@@ -4,7 +4,7 @@
   "description": "We explore a read-only client written in react.",
   "main": "index.js",
   "scripts": {
-    "build": "reactpack ./src/index.js",
+    "build": "reactpack --optimize ./src/index.js",
     "start": "reactpack --dev ./src/index.js",
     "lint": "eslint ./src"
   },
