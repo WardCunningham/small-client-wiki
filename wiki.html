@@ -85,11 +85,14 @@ var Page = React.createClass({
 var Paragraph = React.createClass({
     render: function(){
         function splitText(text) {
-          return text.split(/(\[https?:.*? .*?\])/)
+          return text.split(/(\[https?:.*? .*?\]|\[\[.*?\]\])/)
         }
 
         function span(split, index) {
-          if (split[0] == "[") {
+          if (split.startsWith("[[")) {
+            return <InternalLink key={index} text={split} />
+          }
+          else if (split.startsWith("[")) {
             return <ExternalLink key={index} text={split} />
           }
           else {
@@ -132,6 +135,17 @@ var ExternalLink = React.createClass({
   render: function() {
     var m = this.props.text.match(/\[(https?:.*?) (.*?)\]/)
     return <a href={m[1]}>{m[2]} <img src="external-link-ltr-icon.png" /></a>
+  }
+})
+
+var InternalLink = React.createClass({
+  handleClick: function() {
+    alert('lert')
+  },
+
+  render: function() {
+    var m = this.props.text.match(/\[\[(.*?)\]\]/)
+    return <a href="#" onClick={this.handleClick}>{m[1]}</a>
   }
 })
 
