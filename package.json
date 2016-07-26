@@ -30,5 +30,6 @@
   },
   "devDependencies": {
     "reactpack": "^0.7.3"
-  }
+  },
+  "engines" : { "node" : ">=4.0" }
 }
