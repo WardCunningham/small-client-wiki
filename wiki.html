@@ -33,7 +33,7 @@ var Lineup = React.createClass({
   },
   render: function() {
     function toSegment(pair) {
-      return <Remote key={pair[1]} site={pair[0]} slug={pair[1]} />
+      return <Remote key={pair.join("/")} site={pair[0]} slug={pair[1]} />
     }
 
     var pairs = []
