@@ -23,6 +23,14 @@ var Lineup = React.createClass({
       lineup: window.location.hash.replace("#", "")
     }
   },
+  appendToLineup: function(event) {
+    var detail = event.detail
+    var originalLineup = this.state.lineup
+    this.setState({ lineup: originalLineup + "/" + detail.site + "/" + detail.slug })
+  },
+  componentDidMount: function() {
+    window.addEventListener("appendToLineup", this.appendToLineup, false);
+  },
   render: function() {
     function toSegment(pair) {
       return <Remote key={pair[1]} site={pair[0]} slug={pair[1]} />
@@ -63,7 +71,9 @@ var Remote = React.createClass({
             <div>
                 <Page
                     title={this.state.title}
-                    story={this.state.story} />
+                    story={this.state.story}
+                    site={this.props.site}
+                    slug={this.props.slug} />
                 <Footer
                     details={[this.props.site, this.props.slug]} />
             </div>
@@ -73,15 +83,17 @@ var Remote = React.createClass({
 
 var Page = React.createClass({
     render: function(){
-        function item (item, index){
-          var I = plugins[item.type] || Paragraph
-          return (<I key={item.id} item={item} />);
+        function item(site, slug) {
+          return function(item, index){
+            var I = plugins[item.type] || Paragraph
+            return (<I key={item.id} item={item} site={site} slug={slug} />);
+          }
         }
 
         return (
             <div className="page">
                 <h2>{this.props.title}</h2>
-                {this.props.story.map(item)}
+                {this.props.story.map(item(this.props.site, this.props.slug))}
             </div>
         );
     }
@@ -93,22 +105,24 @@ var Paragraph = React.createClass({
           return text.split(/(\[https?:.*? .*?\]|\[\[.*?\]\])/)
         }
 
-        function span(split, index) {
-          if (split.startsWith("[[")) {
-            return <InternalLink key={index} text={split} />
-          }
-          else if (split.startsWith("[")) {
-            return <ExternalLink key={index} text={split} />
-          }
-          else {
-            return <PlainText key={index} text={split} />
+        function span(site, slug) {
+          return function (split, index) {
+            if (split.startsWith("[[")) {
+              return <InternalLink key={index} text={split} site={site} />
+            }
+            else if (split.startsWith("[")) {
+              return <ExternalLink key={index} text={split} />
+            }
+            else {
+              return <PlainText key={index} text={split} />
+            }
           }
         }
 
         var spans = splitText(this.props.item.text)
         return (
             <div className="item" className={this.props.item.type}>
-                <p>{spans.map(span)}</p>
+                <p>{spans.map(span(this.props.site, this.props.slug))}</p>
             </div>
         );
     }
@@ -144,13 +158,21 @@ var ExternalLink = React.createClass({
 })
 
 var InternalLink = React.createClass({
-  handleClick: function() {
-    alert('lert')
+  asSlug: function(title) {
+    return title.replace(/\s/g, '-').replace(/[^A-Za-z0-9-]/g, '').toLowerCase()
   },
-
-  render: function() {
+  title: function() {
     var m = this.props.text.match(/\[\[(.*?)\]\]/)
-    return <a href="#" onClick={this.handleClick}>{m[1]}</a>
+    return m[1]
+  },
+  handleClick: function(click) {
+    var detail = { site: this.props.site, slug: this.asSlug(this.title()) }
+    var event = new CustomEvent('appendToLineup', { detail: detail })
+    window.dispatchEvent(event)
+    click.preventDefault()
+  },
+  render: function() {
+    return <a href="#" onClick={this.handleClick}>{this.title()}</a>
   }
 })
 
