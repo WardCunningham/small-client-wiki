@@ -26,10 +26,16 @@ var Lineup = React.createClass({
   appendToLineup: function(event) {
     var detail = event.detail
     var originalLineup = this.state.lineup
-    this.setState({ lineup: originalLineup + "/" + detail.site + "/" + detail.slug })
+    var newLineup = originalLineup + "/" + detail.site + "/" + detail.slug
+    this.setState({ lineup: newLineup })
+    window.location.hash = "#" + newLineup
+  },
+  onPopstate: function(event) {
+    this.setState({ lineup: window.location.hash.replace("#", "") })
   },
   componentDidMount: function() {
     window.addEventListener("appendToLineup", this.appendToLineup, false);
+    window.addEventListener("popstate", this.onPopstate, false);
   },
   render: function() {
     function toSegment(pair) {
@@ -139,6 +145,7 @@ var Reference = React.createClass({
     )
   }
 })
+
 var plugins = {
   "paragraph": Paragraph,
   "reference": Reference
