@@ -18,37 +18,64 @@
 <script type="text/jsx">
 
 var Lineup = React.createClass({
+  createInstance: function(site, slug) {
+    return {
+      id: Math.floor(Math.random() * 1000000000),
+      site: site,
+      slug: slug
+    }
+  },
+  instancesFromUrl: function(lineupString) {
+    var instances = []
+    var segments = lineupString.split("/")
+    for (i = 0; i < segments.length; i += 2) {
+      instances.push(this.createInstance(segments[i], segments[i + 1]))
+    }
+    return instances
+  },
+  urlFromInstances: function(instances) {
+    return instances.map(function(instance) {
+      return instance[0] + "/" + instance[1]
+    }).join("/")
+  },
+  alignInstances: function(original, replacement) {
+    for (var i = 0; i < replacement.length; i++) {
+      var o = original[i]
+      var r = replacement[i]
+      if (o == undefined || r.site != o.site || r.slug != o.slug) {
+        break
+      }
+      r.id = o.id
+    }
+    return replacement
+  },
   getInitialState: function() {
     return {
-      lineup: window.location.hash.replace("#", "")
+      lineup: this.instancesFromUrl(window.location.hash.replace("#", ""))
     }
   },
   appendToLineup: function(event) {
     var detail = event.detail
-    var originalLineup = this.state.lineup
-    var newLineup = originalLineup + "/" + detail.site + "/" + detail.slug
+    var newLineup = this.state.lineup.slice(0);
+    newLineup.push(createInstance(detail.site, detail.slug))
     this.setState({ lineup: newLineup })
-    window.location.hash = "#" + newLineup
+    window.location.hash = "#" + this.urlFromInstances(newLineup)
   },
   onPopstate: function(event) {
-    this.setState({ lineup: window.location.hash.replace("#", "") })
+    var newLineup = this.instancesFromUrl(window.location.hash.replace("#", ""))
+    this.alignInstances(this.state.lineup, newLineup)
+    this.setState({ lineup: newLineup })
   },
   componentDidMount: function() {
-    window.addEventListener("appendToLineup", this.appendToLineup, false);
-    window.addEventListener("popstate", this.onPopstate, false);
+    window.addEventListener("appendToLineup", this.appendToLineup, false)
+    window.addEventListener("popstate", this.onPopstate, false)
   },
   render: function() {
-    function toSegment(pair) {
-      return <Remote key={pair.join("/")} site={pair[0]} slug={pair[1]} />
+    function toSegment(instance) {
+      return <Remote key={instance.id} site={instance.site} slug={instance.slug} />
     }
 
-    var pairs = []
-    var segments = this.state.lineup.split("/")
-    for (i = 0; i < segments.length; i += 2) {
-      pairs.push([segments[i], segments[i + 1]])
-    }
-
-    return <div>{pairs.map(toSegment)}</div>
+    return <div>{this.state.lineup.map(toSegment)}</div>
   }
 })
 
