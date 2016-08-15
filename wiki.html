@@ -172,9 +172,8 @@ var Reference = React.createClass({
     return (
         <div className="item" className={this.props.item.type}>
           <p>
-            <a href=''>
-              <img style={{width: 12, marginRight: 5}} src={'http://' + this.props.item.site + '/favicon.png'}  />
-              {this.props.item.title}</a> — <ResolvedText item={this.props.item} site={this.props.site} slug={this.props.slug} />
+            <a href=''><img style={{width: 12, marginRight: 5}} src={'http://' + this.props.item.site + '/favicon.png'}  /></a>
+            <InternalLink key={1} site={this.props.item.site} text={this.props.item.title} /> — <ResolvedText item={this.props.item} site={this.props.site} slug={this.props.slug} />
           </p>
         </div>
     )
@@ -203,18 +202,14 @@ var InternalLink = React.createClass({
   asSlug: function(title) {
     return title.replace(/\s/g, '-').replace(/[^A-Za-z0-9-]/g, '').toLowerCase()
   },
-  title: function() {
-    var m = this.props.text.match(/\[\[(.*?)\]\]/)
-    return m[1]
-  },
   handleClick: function(click) {
-    var detail = { site: this.props.site, slug: this.asSlug(this.title()) }
+    var detail = { site: this.props.site, slug: this.asSlug(this.props.text) }
     var event = new CustomEvent('appendToLineup', { detail: detail })
     window.dispatchEvent(event)
     click.preventDefault()
   },
   render: function() {
-    return <a href="#" onClick={this.handleClick}>{this.title()}</a>
+    return <a href="#" onClick={this.handleClick}>{this.props.text}</a>
   }
 })
 
@@ -227,7 +222,7 @@ var ResolvedText = React.createClass({
         function span(site, slug) {
           return function (split, index) {
             if (split.startsWith("[[")) {
-              return <InternalLink key={index} text={split} site={site} />
+              return <InternalLink key={index} text={split.slice(2, -2)} site={site} />
             }
             else if (split.startsWith("[")) {
               return <ExternalLink key={index} text={split} />
