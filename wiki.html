@@ -7,7 +7,16 @@
 <body>
 
 <style>
-.page {width: 420px; margin: 8px; padding: 35px; border: 1px;}
+.lineup {
+  display: flex;
+}
+
+.page {
+  width: 250px;
+  margin: 8px;
+  padding: 35px;
+  border: black 1px dotted;
+}
 </style>
 
 <div id="content"></div>
@@ -75,7 +84,7 @@ var Lineup = React.createClass({
       return <Remote key={instance.id} site={instance.site} slug={instance.slug} />
     }
 
-    return <div>{this.state.lineup.map(toSegment)}</div>
+    return <div className="lineup">{this.state.lineup.map(toSegment)}</div>
   }
 })
 
@@ -107,8 +116,6 @@ var Remote = React.createClass({
                     story={this.state.story}
                     site={this.props.site}
                     slug={this.props.slug} />
-                <Footer
-                    details={[this.props.site, this.props.slug]} />
             </div>
         );
     }
@@ -127,6 +134,8 @@ var Page = React.createClass({
             <div className="page">
                 <h2>{this.props.title}</h2>
                 {this.props.story.map(item(this.props.site, this.props.slug))}
+                <Footer
+                    details={[this.props.site, this.props.slug]} />
             </div>
         );
     }
