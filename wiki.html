@@ -35,7 +35,7 @@ var Lineup = React.createClass({
   },
   urlFromInstances: function(instances) {
     return instances.map(function(instance) {
-      return instance[0] + "/" + instance[1]
+      return instance.site + "/" + instance.slug
     }).join("/")
   },
   alignInstances: function(original, replacement) {
@@ -57,7 +57,7 @@ var Lineup = React.createClass({
   appendToLineup: function(event) {
     var detail = event.detail
     var newLineup = this.state.lineup.slice(0);
-    newLineup.push(createInstance(detail.site, detail.slug))
+    newLineup.push(this.createInstance(detail.site, detail.slug))
     this.setState({ lineup: newLineup })
     window.location.hash = "#" + this.urlFromInstances(newLineup)
   },
