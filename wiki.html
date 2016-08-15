@@ -65,8 +65,14 @@ var Lineup = React.createClass({
     return replacement
   },
   getInitialState: function() {
+    initial = window.location.hash.replace("#", "")
+    if (initial == "") {
+      initial = "small.bay.wiki.org/welcome-visitors"
+      window.location.hash = "#" + initial
+    }
+
     return {
-      lineup: this.instancesFromUrl(window.location.hash.replace("#", ""))
+      lineup: this.instancesFromUrl(initial)
     }
   },
   appendToLineup: function(event) {
