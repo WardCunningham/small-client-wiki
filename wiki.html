@@ -144,10 +144,12 @@ var Page = React.createClass({
 
         return (
             <div className="page">
-                <h2>{this.props.title}</h2>
+                <h2>
+                  <img style={{width: 18, marginRight: 5}} src={'http://' + this.props.site + '/favicon.png'}  />
+                  {this.props.title}
+                </h2>
                 {this.props.story.map(item(this.props.site, this.props.slug))}
-                <Footer
-                    details={[this.props.site, this.props.slug]} />
+                <Footer details={[this.props.site, this.props.slug]} />
             </div>
         );
     }
@@ -155,28 +157,11 @@ var Page = React.createClass({
 
 var Paragraph = React.createClass({
     render: function(){
-        function splitText(text) {
-          return text.split(/(\[https?:.*? .*?\]|\[\[.*?\]\])/)
-        }
-
-        function span(site, slug) {
-          return function (split, index) {
-            if (split.startsWith("[[")) {
-              return <InternalLink key={index} text={split} site={site} />
-            }
-            else if (split.startsWith("[")) {
-              return <ExternalLink key={index} text={split} />
-            }
-            else {
-              return <PlainText key={index} text={split} />
-            }
-          }
-        }
-
-        var spans = splitText(this.props.item.text)
-        return (
+      return (
             <div className="item" className={this.props.item.type}>
-                <p>{spans.map(span(this.props.site, this.props.slug))}</p>
+              <p>
+                <ResolvedText item={this.props.item} site={this.props.site} slug={this.props.slug} />
+              </p>
             </div>
         );
     }
@@ -185,11 +170,13 @@ var Paragraph = React.createClass({
 var Reference = React.createClass({
   render: function () {
     return (
-        <p>
-          <a href=''>
-            <img style={{width: 16, marginRight: 5}} src={'http://' + this.props.item.site + '/favicon.png'}  />
-            {this.props.item.title}</a> — {this.props.item.text}
-        </p>
+        <div className="item" className={this.props.item.type}>
+          <p>
+            <a href=''>
+              <img style={{width: 12, marginRight: 5}} src={'http://' + this.props.item.site + '/favicon.png'}  />
+              {this.props.item.title}</a> — <ResolvedText item={this.props.item} site={this.props.site} slug={this.props.slug} />
+          </p>
+        </div>
     )
   }
 })
@@ -229,6 +216,31 @@ var InternalLink = React.createClass({
   render: function() {
     return <a href="#" onClick={this.handleClick}>{this.title()}</a>
   }
+})
+
+var ResolvedText = React.createClass({
+    render: function(){
+        function splitText(text) {
+          return text.split(/(\[https?:.*? .*?\]|\[\[.*?\]\])/)
+        }
+
+        function span(site, slug) {
+          return function (split, index) {
+            if (split.startsWith("[[")) {
+              return <InternalLink key={index} text={split} site={site} />
+            }
+            else if (split.startsWith("[")) {
+              return <ExternalLink key={index} text={split} />
+            }
+            else {
+              return <PlainText key={index} text={split} />
+            }
+          }
+        }
+
+        var spans = splitText(this.props.item.text)
+        return <span>{spans.map(span(this.props.site, this.props.slug))}</span>
+    }
 })
 
 var Footer = React.createClass({
