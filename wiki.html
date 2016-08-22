@@ -20,14 +20,31 @@
   border: black 1px dotted;
 }
 
+a {
+  text-decoration: none;
+}
+
 .missing {
   background: #eee;
   padding: 0.8em
 }
 
-a {
-  text-decoration: none;
+.caption {
+  color: gray;
+  text-align: center;
+  text-size: small;
 }
+
+.surround {
+  background: #eee;
+  padding: 0.8em;
+}
+
+.surround img {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
 </style>
 
 <div id="content"></div>
@@ -160,6 +177,17 @@ var Page = React.createClass({
     }
 });
 
+var Image = React.createClass({
+  render: function() {
+    return (
+    <div className="item surround">
+      <img src={this.props.item.url} />
+      <div className="caption">{this.props.item.caption}</div>
+    </div>
+    )
+  }
+})
+
 var Paragraph = React.createClass({
     render: function(){
       return (
@@ -196,6 +224,7 @@ var MissingPlugin = React.createClass({
 })
 
 var plugins = {
+  "image": Image,
   "paragraph": Paragraph,
   "reference": Reference
 }
