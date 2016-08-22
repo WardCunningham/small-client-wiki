@@ -45,6 +45,24 @@ a {
   margin-bottom: 10px;
 }
 
+.item.pagefold {
+  border-top: 2px solid lightgray;
+  clear: both;
+  height: 10px;
+  margin-top: 24px;
+  position: relative;
+  text-align: center;
+}
+
+.item.pagefold span {
+  background: white;
+  color: gray;
+  display: inline-block;
+  padding: 0px .5em;
+  position: relative;
+  top: -.8em;
+}
+
 </style>
 
 <div id="content"></div>
@@ -188,6 +206,14 @@ var Image = React.createClass({
   }
 })
 
+var PageFold = React.createClass({
+  render: function() {
+    return <div className="item pagefold">
+             <span>{this.props.item.text}</span>
+           </div>
+  }
+})
+
 var Paragraph = React.createClass({
     render: function(){
       return (
@@ -225,6 +251,7 @@ var MissingPlugin = React.createClass({
 
 var plugins = {
   "image": Image,
+  "pagefold": PageFold,
   "paragraph": Paragraph,
   "reference": Reference
 }
