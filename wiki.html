@@ -20,6 +20,11 @@
   border: black 1px dotted;
 }
 
+.missing {
+  background: #eee;
+  padding: 0.8em
+}
+
 a {
   text-decoration: none;
 }
@@ -137,7 +142,7 @@ var Page = React.createClass({
     render: function(){
         function item(site, slug) {
           return function(item, index){
-            var I = plugins[item.type] || Paragraph
+            var I = plugins[item.type] || MissingPlugin
             return (<I key={item.id} item={item} site={site} slug={slug} />);
           }
         }
@@ -176,6 +181,16 @@ var Reference = React.createClass({
             <InternalLink key={1} site={this.props.item.site} text={this.props.item.title} /> — <ResolvedText item={this.props.item} site={this.props.site} slug={this.props.slug} />
           </p>
         </div>
+    )
+  }
+})
+
+var MissingPlugin = React.createClass({
+  render: function() {
+    return (
+      <div className="item missing">
+        Missing '{this.props.item.type}' plugin
+      </div>
     )
   }
 })
