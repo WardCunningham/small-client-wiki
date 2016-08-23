@@ -24,6 +24,10 @@ a {
   text-decoration: none;
 }
 
+iframe {
+  width: 100%;
+}
+
 .missing {
   background: #eee;
   padding: 0.8em
@@ -219,7 +223,7 @@ var Paragraph = React.createClass({
       return (
             <div className="item" className={this.props.item.type}>
               <p>
-                <ResolvedText item={this.props.item} site={this.props.site} slug={this.props.slug} />
+                <ResolvedText text={this.props.item.text} site={this.props.site} slug={this.props.slug} />
               </p>
             </div>
         );
@@ -232,9 +236,57 @@ var Reference = React.createClass({
         <div className="item" className={this.props.item.type}>
           <p>
             <a href=''><img style={{width: 12, marginRight: 5}} src={'http://' + this.props.item.site + '/favicon.png'}  /></a>
-            <InternalLink key={1} site={this.props.item.site} text={this.props.item.title} /> — <ResolvedText item={this.props.item} site={this.props.site} slug={this.props.slug} />
+            <InternalLink key={1} site={this.props.item.site} text={this.props.item.title} /> — <ResolvedText text={this.props.item.text} site={this.props.site} slug={this.props.slug} />
           </p>
         </div>
+    )
+  }
+})
+
+var Video = React.createClass({
+  render: function() {
+    var parse = function(text) {
+      result = { caption: "" }
+      var lines = text.split(/\r\n?|\n/)
+      for (i = 0; i < lines.length; i++) {
+        var line = lines[i]
+        var match = line.match(/^\s*([A-Z0-9]+)\s+([\w\.\-\/+0-9]+)\s*$/)
+        if (match) {
+          result.player = match[1]
+          result.key = match[2]
+        }
+        else {
+          result.caption += line + " "
+        }
+      }
+      return result;
+    }
+
+    var players = {
+      "YOUTUBE": "http://www.youtube.com/embed/#{key}?rel=0",
+      "VIMEO": "http://player.vimeo.com/video/#{key}?title=0&amp;byline=0&amp;portrait=0",
+      "TED": "https://embed-ssl.ted.com/talks/#{key}.html"
+    }
+
+    var lookupUrl = function(result) {
+      var template = players[result.player]
+      if (template == undefined)
+        return undefined
+
+      return template.replace("#{key}", result.key)
+    }
+
+    var result = parse(this.props.item.text)
+    var url = lookupUrl(result)
+    var player = url ?
+      <iframe src={url} frameBorder="0" allowFullScreen /> :
+      <div className="surround">{result.player + " " + result.key}</div>
+
+    return (
+      <div className="item">
+        {player}
+        <i><ResolvedText text={result.caption} /></i>
+      </div>
     )
   }
 })
@@ -253,7 +305,8 @@ var plugins = {
   "image": Image,
   "pagefold": PageFold,
   "paragraph": Paragraph,
-  "reference": Reference
+  "reference": Reference,
+  "video": Video
 }
 
 var PlainText = React.createClass({
@@ -304,7 +357,7 @@ var ResolvedText = React.createClass({
           }
         }
 
-        var spans = splitText(this.props.item.text)
+        var spans = splitText(this.props.text)
         return <span>{spans.map(span(this.props.site, this.props.slug))}</span>
     }
 })
