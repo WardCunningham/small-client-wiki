@@ -125,7 +125,7 @@ var Lineup = React.createClass({
     var newLineup = this.state.lineup.slice(0);
     newLineup.push(this.createInstance(detail.context, detail.site, detail.slug))
     this.setState({ lineup: newLineup })
-    window.location.hash = "#" + this.urlFromInstances(newLineup)
+    // window.location.hash = "#" + this.urlFromInstances(newLineup)
   },
   onPopstate: function(event) {
     var newLineup = this.instancesFromUrl(window.location.hash.replace("#", ""))
@@ -138,11 +138,58 @@ var Lineup = React.createClass({
   },
   render: function() {
     function toSegment(instance) {
-      return <Remote key={instance.id} context={instance.context} site={instance.site} slug={instance.slug} />
+      return <Resolution key={instance.id} context={instance.context} site={instance.site} slug={instance.slug} />
     }
 
     return <div className="lineup">{this.state.lineup.map(toSegment)}</div>
   }
+})
+
+var Resolution = React.createClass({
+    getInitialState: function() {
+      return {
+        resolved: false,
+        site: this.props.site
+      }
+    },
+    resolve: function(context, slug, i) {
+      if (i >= context.length) {
+        return;
+      }
+
+      var site = context[i]
+      var source = 'http://' + site + '/' + slug + '.json'
+      var that = this;
+
+      this.serverRequest = $.get(source, function (result) {
+        that.setState({
+          resolved: true,
+          site: site
+        })
+      }).fail(function (result) {
+        that.resolve(context, slug, ++i)
+      });
+    },
+    componentDidMount: function() {
+      if (this.props.context) {
+        this.resolve(this.props.context, this.props.slug, 0)
+      }
+      else {
+        this.setState({
+          resolved: true,
+          site: this.props.site
+        })
+      }
+    },
+    render: function(){
+      var remote = this.state.resolved ?
+                    <Remote key={this.props.key} context={this.props.context} site={this.state.site} slug={this.props.slug} /> :
+                    <span>Something</span>
+
+      return <div key={this.props.key}>
+               {remote}
+             </div>
+    }
 })
 
 var Remote = React.createClass({
@@ -354,7 +401,7 @@ var InternalLink = React.createClass({
     click.preventDefault()
   },
   render: function() {
-    var contextTitle = this.props.context.join(" => ")
+    var contextTitle = this.props.context.join(" ⇒ ")
     return <a href="#" title={contextTitle} onClick={this.handleClick}>{this.props.text}</a>
   }
 })
