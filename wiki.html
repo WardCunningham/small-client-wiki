@@ -244,8 +244,8 @@ var Remote = React.createClass({
 
         var source = 'http://' + this.props.site + '/' + this.props.slug + '.json'
         this.serverRequest = $.get(source, function (result) {
-          context = [this.props.site]
-          journal = result.journal || []
+          var context = [this.props.site]
+          var journal = result.journal || []
           journal.reverse().forEach(ammend(context))
 
           var detail = { id: this.props.id, context: context,
@@ -346,7 +346,7 @@ var Reference = React.createClass({
 var Video = React.createClass({
   render: function() {
     var parse = function(text) {
-      result = { caption: "" }
+      var result = { caption: "" }
       var lines = text.split(/\r\n?|\n/)
       for (i = 0; i < lines.length; i++) {
         var line = lines[i]
@@ -385,7 +385,7 @@ var Video = React.createClass({
     return (
       <div className="item">
         {player}
-        <i><ResolvedText context={context} text={result.caption} /></i>
+        <i><ResolvedText context={this.props.context} text={result.caption} /></i>
       </div>
     )
   }
@@ -444,7 +444,7 @@ var ResolvedText = React.createClass({
           return text.split(/(\[https?:.*? .*?\]|\[\[.*?\]\])/)
         }
 
-        function span(site, slug) {
+        function span(context, site, slug) {
           return function (split, index) {
             if (split.startsWith("[[")) {
               return <InternalLink key={index} context={context} text={split.slice(2, -2)} site={site} />
@@ -459,7 +459,7 @@ var ResolvedText = React.createClass({
         }
 
         var spans = splitText(this.props.text)
-        return <span>{spans.map(span(this.props.site, this.props.slug))}</span>
+        return <span>{spans.map(span(this.props.context, this.props.site, this.props.slug))}</span>
     }
 })
 
