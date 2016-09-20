@@ -127,7 +127,6 @@ var Lineup = React.createClass({
     var newLineup = this.state.lineup.slice(0);
     newLineup.push(this.createInstance(detail.context, detail.site, detail.slug, detail.title))
     this.setState({ lineup: newLineup })
-    // window.location.hash = "#" + this.urlFromInstances(newLineup)
   },
   pageAvailable: function(event) {
     var detail = event.detail
@@ -152,6 +151,13 @@ var Lineup = React.createClass({
     window.addEventListener("appendToLineup", this.appendToLineup, false)
     window.addEventListener("pageAvailable", this.pageAvailable, false)
     window.addEventListener("popstate", this.onPopstate, false)
+  },
+  componentDidUpdate: function() {
+    loading = this.state.lineup.find(function(item) { return item.site == undefined })
+
+    if (!loading) {
+      window.location.hash = "#" + this.urlFromInstances(this.state.lineup)
+    }
   },
   render: function() {
     function toSegment(instance) {
