@@ -125,7 +125,7 @@ var Lineup = React.createClass({
   appendToLineup: function(event) {
     var detail = event.detail
     var newLineup = this.state.lineup.slice(0);
-    newLineup.push(this.createInstance(detail.context, detail.site, detail.slug))
+    newLineup.push(this.createInstance(detail.context, detail.site, detail.slug, detail.title))
     this.setState({ lineup: newLineup })
     // window.location.hash = "#" + this.urlFromInstances(newLineup)
   },
