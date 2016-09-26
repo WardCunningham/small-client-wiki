@@ -77,12 +77,14 @@ iframe {
 <script type="text/jsx">
 
 var Lineup = React.createClass({
-  createInstance: function(context, site, slug) {
+  createInstance: function(context, site, slug, title, story) {
     return {
       id: Math.floor(Math.random() * 1000000000),
       context: context,
       site: site,
-      slug: slug
+      slug: slug,
+      title: title,
+      story: story
     }
   },
   instancesFromUrl: function(lineupString) {
@@ -123,9 +125,22 @@ var Lineup = React.createClass({
   appendToLineup: function(event) {
     var detail = event.detail
     var newLineup = this.state.lineup.slice(0);
-    newLineup.push(this.createInstance(detail.context, detail.site, detail.slug))
+    newLineup.push(this.createInstance(detail.context, detail.site, detail.slug, detail.title))
     this.setState({ lineup: newLineup })
-    window.location.hash = "#" + this.urlFromInstances(newLineup)
+  },
+  pageAvailable: function(event) {
+    var detail = event.detail
+    var that = this
+    var newLineup = this.state.lineup.map(function(item) {
+        if (item.id == detail.id) {
+          return that.createInstance(detail.context, detail.site, detail.slug, detail.title, detail.story)
+        }
+        else {
+          return item
+        }
+    })
+
+    this.setState({ lineup: newLineup })
   },
   onPopstate: function(event) {
     var newLineup = this.instancesFromUrl(window.location.hash.replace("#", ""))
@@ -134,15 +149,85 @@ var Lineup = React.createClass({
   },
   componentDidMount: function() {
     window.addEventListener("appendToLineup", this.appendToLineup, false)
+    window.addEventListener("pageAvailable", this.pageAvailable, false)
     window.addEventListener("popstate", this.onPopstate, false)
+  },
+  componentDidUpdate: function() {
+    loading = this.state.lineup.find(function(item) { return item.site == undefined })
+
+    if (!loading) {
+      window.location.hash = "#" + this.urlFromInstances(this.state.lineup)
+    }
   },
   render: function() {
     function toSegment(instance) {
-      return <Remote key={instance.id} context={instance.context} site={instance.site} slug={instance.slug} />
+      if (instance.story) {
+        return <div key={instance.id}>
+                  <Page
+                      context={instance.context}
+                      title={instance.title}
+                      story={instance.story}
+                      site={instance.site}
+                      slug={instance.slug} />
+              </div>
+      }
+      else if (instance.site == undefined) {
+        return <Resolution key={instance.id} id={instance.id} context={instance.context} title={instance.title} slug={instance.slug} />
+      }
+      else {
+        return <Remote key={instance.id} id={instance.id} context={instance.context} site={instance.site} slug={instance.slug} />
+      }
     }
 
     return <div className="lineup">{this.state.lineup.map(toSegment)}</div>
   }
+})
+
+var Resolution = React.createClass({
+    resolve: function(context, slug, i) {
+      if (i >= context.length) {
+        return;
+      }
+
+      var site = context[i]
+      var source = 'http://' + site + '/' + slug + '.json'
+      var that = this;
+
+      var ammend = function(sum) {
+        return function(each) {
+          if (each.site != undefined && sum.indexOf(each.site) == -1) {
+            sum.push(each.site)
+          }
+        }
+      }
+
+      this.serverRequest = $.get(source, function (result) {
+        var resolvedContext = [site]
+        var journal = result.journal || []
+        journal.reverse().forEach(ammend(resolvedContext))
+
+        var detail = { id: that.props.id, context: resolvedContext,
+                       site: site, slug: that.props.slug,
+                       title: result.title, story: result.story }
+        var event = new CustomEvent('pageAvailable', { detail: detail })
+        window.dispatchEvent(event)
+      }).fail(function (result) {
+        that.resolve(context, slug, ++i)
+      });
+    },
+    componentDidMount: function() {
+      this.resolve(this.props.context, this.props.slug, 0)
+    },
+    render: function(){
+      return <div key={this.props.key}>
+                <Page
+                    context={this.props.context}
+                    title={this.props.title}
+                    story={[]}
+                    site={this.props.site}
+                    slug={this.props.slug} />
+             </div>
+    }
 })
 
 var Remote = React.createClass({
@@ -165,15 +250,15 @@ var Remote = React.createClass({
 
         var source = 'http://' + this.props.site + '/' + this.props.slug + '.json'
         this.serverRequest = $.get(source, function (result) {
-          context = [this.props.site]
-          journal = result.journal || []
+          var context = [this.props.site]
+          var journal = result.journal || []
           journal.reverse().forEach(ammend(context))
 
-          this.setState({
-              context: context,
-              title: result.title,
-              story: result.story
-          });
+          var detail = { id: this.props.id, context: context,
+                         site: this.props.site, slug: this.props.slug,
+                         title: result.title, story: result.story }
+          var event = new CustomEvent('pageAvailable', { detail: detail })
+          window.dispatchEvent(event)
         }.bind(this));
     },
     componentWillUnmount: function() {
@@ -267,7 +352,7 @@ var Reference = React.createClass({
 var Video = React.createClass({
   render: function() {
     var parse = function(text) {
-      result = { caption: "" }
+      var result = { caption: "" }
       var lines = text.split(/\r\n?|\n/)
       for (i = 0; i < lines.length; i++) {
         var line = lines[i]
@@ -306,7 +391,7 @@ var Video = React.createClass({
     return (
       <div className="item">
         {player}
-        <i><ResolvedText context={context} text={result.caption} /></i>
+        <i><ResolvedText context={this.props.context} text={result.caption} /></i>
       </div>
     )
   }
@@ -348,13 +433,13 @@ var InternalLink = React.createClass({
     return title.replace(/\s/g, '-').replace(/[^A-Za-z0-9-]/g, '').toLowerCase()
   },
   handleClick: function(click) {
-    var detail = { context: this.props.context, site: this.props.site, slug: this.asSlug(this.props.text) }
+    var detail = { context: this.props.context, title: this.props.text, slug: this.asSlug(this.props.text) }
     var event = new CustomEvent('appendToLineup', { detail: detail })
     window.dispatchEvent(event)
     click.preventDefault()
   },
   render: function() {
-    var contextTitle = this.props.context.join(" => ")
+    var contextTitle = this.props.context.join(" ⇒ ")
     return <a href="#" title={contextTitle} onClick={this.handleClick}>{this.props.text}</a>
   }
 })
@@ -365,7 +450,7 @@ var ResolvedText = React.createClass({
           return text.split(/(\[https?:.*? .*?\]|\[\[.*?\]\])/)
         }
 
-        function span(site, slug) {
+        function span(context, site, slug) {
           return function (split, index) {
             if (split.startsWith("[[")) {
               return <InternalLink key={index} context={context} text={split.slice(2, -2)} site={site} />
@@ -380,7 +465,7 @@ var ResolvedText = React.createClass({
         }
 
         var spans = splitText(this.props.text)
-        return <span>{spans.map(span(this.props.site, this.props.slug))}</span>
+        return <span>{spans.map(span(this.props.context, this.props.site, this.props.slug))}</span>
     }
 })
 
