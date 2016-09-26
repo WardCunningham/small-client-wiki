@@ -162,9 +162,7 @@ var Lineup = React.createClass({
   render: function() {
     function toSegment(instance) {
       if (instance.story) {
-        return <div key={instance.id}>
-                 <Page instance={instance} />
-               </div>
+        return <Page key={instance.id} instance={instance} />
       }
       else if (instance.site == undefined) {
         return <Resolution key={instance.id} instance={instance} />
@@ -214,9 +212,7 @@ var Resolution = React.createClass({
       this.resolve(this.props.instance.context, this.props.instance.slug, 0)
     },
     render: function(){
-      return <div key={this.props.key}>
-               <Page instance={this.props.instance} />
-             </div>
+      return <Page instance={this.props.instance} />
     }
 })
 
@@ -247,11 +243,7 @@ var Remote = React.createClass({
         this.serverRequest.abort();
     },
     render: function(){
-        return (
-            <div>
-              <Page instance={this.props.instance} />
-            </div>
-        );
+        return <Page instance={this.props.instance} />
     }
 });
 
@@ -268,13 +260,15 @@ var Page = React.createClass({
         var context = this.props.instance.context || [this.props.instance.site]
 
         return (
-            <div className="page">
-                <h2>
-                  <img style={{width: 18, marginRight: 5}} src={'http://' + this.props.instance.site + '/favicon.png'}  />
-                  {this.props.instance.title || this.props.instance.slug}
-                </h2>
-                {items.map(item(this.props.instance.context, this.props.instance.site, this.props.instance.slug))}
-                <Footer details={[context.join(" ⇒ ")]} />
+            <div>
+              <div className="page">
+                  <h2>
+                    <img style={{width: 18, marginRight: 5}} src={'http://' + this.props.instance.site + '/favicon.png'}  />
+                    {this.props.instance.title || this.props.instance.slug}
+                  </h2>
+                  {items.map(item(this.props.instance.context, this.props.instance.site, this.props.instance.slug))}
+                  <Footer details={[context.join(" ⇒ ")]} />
+              </div>
             </div>
         );
     }
