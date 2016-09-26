@@ -107,7 +107,7 @@ var Lineup = React.createClass({
       if (o == undefined || r.site != o.site || r.slug != o.slug) {
         break
       }
-      r.id = o.id
+      replacement[i] = o
     }
     return replacement
   },
