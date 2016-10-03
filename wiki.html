@@ -130,7 +130,7 @@ var Lineup = React.createClass({
   },
   replaceInLineup: function(event) {
     var detail = event.detail
-    var lastDesiredIndex = this.state.lineup.findIndex(function(item) { return item.id == detail.instanceId})
+    var lastDesiredIndex = this.state.lineup.findIndex(function(item) { return item.id == detail.instance.id})
     var newLineup = this.state.lineup.slice(0, lastDesiredIndex + 1);
     newLineup.push(this.createInstance(detail.context, detail.site, detail.slug, detail.title))
     this.setState({ lineup: newLineup })
@@ -156,6 +156,7 @@ var Lineup = React.createClass({
   },
   componentDidMount: function() {
     window.addEventListener("appendToLineup", this.appendToLineup, false)
+    window.addEventListener("replaceInLineup", this.replaceInLineup, false)
     window.addEventListener("pageAvailable", this.pageAvailable, false)
     window.addEventListener("popstate", this.onPopstate, false)
   },
@@ -256,10 +257,10 @@ var Remote = React.createClass({
 
 var Page = React.createClass({
     render: function(){
-        function item(context, site, slug) {
+        function item(instance, context, site, slug) {
           return function(item, index){
             var I = plugins[item.type] || MissingPlugin
-            return (<I key={item.id} item={item} context={context} site={site} slug={slug} />);
+            return (<I key={item.id} item={item} instance={instance} context={context} site={site} slug={slug} />);
           }
         }
 
@@ -273,7 +274,7 @@ var Page = React.createClass({
                     <img style={{width: 18, marginRight: 5}} src={'http://' + this.props.instance.site + '/favicon.png'}  />
                     {this.props.instance.title || this.props.instance.slug}
                   </h2>
-                  {items.map(item(this.props.instance.context, this.props.instance.site, this.props.instance.slug))}
+                  {items.map(item(this.props.instance, this.props.instance.context, this.props.instance.site, this.props.instance.slug))}
                   <Footer details={[context.join(" ⇒ ")]} />
               </div>
             </div>
@@ -305,7 +306,7 @@ var Paragraph = React.createClass({
       return (
             <div className="item" className={this.props.item.type}>
               <p>
-                <ResolvedText context={this.props.context} text={this.props.item.text} site={this.props.site} slug={this.props.slug} />
+                <ResolvedText context={this.props.context} instance={this.props.instance} text={this.props.item.text} site={this.props.site} slug={this.props.slug} />
               </p>
             </div>
         );
@@ -323,7 +324,7 @@ var Reference = React.createClass({
         <div className="item" className={this.props.item.type}>
           <p>
             <a href=''><img style={{width: 12, marginRight: 5}} src={'http://' + this.props.item.site + '/favicon.png'}  /></a>
-            <InternalLink key={1} context={referenceContext} site={this.props.item.site} text={this.props.item.title} /> — <ResolvedText context={referenceContext} text={this.props.item.text} site={this.props.site} slug={this.props.slug} />
+            <InternalLink key={1} instance={this.props.instance} context={referenceContext} site={this.props.item.site} text={this.props.item.title} /> — <ResolvedText context={referenceContext} instance={this.props.instance} text={this.props.item.text} site={this.props.site} slug={this.props.slug} />
           </p>
         </div>
     )
@@ -372,7 +373,7 @@ var Video = React.createClass({
     return (
       <div className="item">
         {player}
-        <i><ResolvedText context={this.props.context} text={result.caption} /></i>
+        <i><ResolvedText context={this.props.context} instance={this.props.instance} text={result.caption} /></i>
       </div>
     )
   }
@@ -414,8 +415,9 @@ var InternalLink = React.createClass({
     return title.replace(/\s/g, '-').replace(/[^A-Za-z0-9-]/g, '').toLowerCase()
   },
   handleClick: function(click) {
-    var detail = { context: this.props.context, title: this.props.text, slug: this.asSlug(this.props.text) }
-    var event = new CustomEvent('appendToLineup', { detail: detail })
+    var detail = { context: this.props.context, instance: this.props.instance, title: this.props.text, slug: this.asSlug(this.props.text) }
+    var eventType = click.nativeEvent.shiftKey ? 'appendToLineup' : 'replaceInLineup'
+    var event = new CustomEvent(eventType, { detail: detail })
     window.dispatchEvent(event)
     click.preventDefault()
   },
@@ -431,10 +433,10 @@ var ResolvedText = React.createClass({
           return text.split(/(\[https?:.*? .*?\]|\[\[.*?\]\])/)
         }
 
-        function span(context, site, slug) {
+        function span(instance, context, site, slug) {
           return function (split, index) {
             if (split.startsWith("[[")) {
-              return <InternalLink key={index} context={context} text={split.slice(2, -2)} site={site} />
+              return <InternalLink key={index} instance={instance} context={context} text={split.slice(2, -2)} site={site} />
             }
             else if (split.startsWith("[")) {
               return <ExternalLink key={index} text={split} />
@@ -446,7 +448,7 @@ var ResolvedText = React.createClass({
         }
 
         var spans = splitText(this.props.text)
-        return <span>{spans.map(span(this.props.context, this.props.site, this.props.slug))}</span>
+        return <span>{spans.map(span(this.props.instance, this.props.context, this.props.site, this.props.slug))}</span>
     }
 })
 
