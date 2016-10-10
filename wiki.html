@@ -257,10 +257,10 @@ var Remote = React.createClass({
 
 var Page = React.createClass({
     render: function(){
-        function item(instance, context, site, slug) {
+        function item(instance) {
           return function(item, index){
             var I = plugins[item.type] || MissingPlugin
-            return (<I key={item.id} item={item} instance={instance} context={context} site={site} slug={slug} />);
+            return (<I key={item.id} item={item} instance={instance} {...instance} />);
           }
         }
 
@@ -274,7 +274,7 @@ var Page = React.createClass({
                     <img style={{width: 18, marginRight: 5}} src={'http://' + this.props.instance.site + '/favicon.png'}  />
                     {this.props.instance.title || this.props.instance.slug}
                   </h2>
-                  {items.map(item(this.props.instance, this.props.instance.context, this.props.instance.site, this.props.instance.slug))}
+                  {items.map(item(this.props.instance))}
                   <Footer details={[context.join(" ⇒ ")]} />
               </div>
             </div>
@@ -306,7 +306,7 @@ var Paragraph = React.createClass({
       return (
             <div className="item" className={this.props.item.type}>
               <p>
-                <ResolvedText context={this.props.context} instance={this.props.instance} text={this.props.item.text} site={this.props.site} slug={this.props.slug} />
+                <ResolvedText {...this.props} text={this.props.item.text} />
               </p>
             </div>
         );
@@ -324,7 +324,7 @@ var Reference = React.createClass({
         <div className="item" className={this.props.item.type}>
           <p>
             <a href=''><img style={{width: 12, marginRight: 5}} src={'http://' + this.props.item.site + '/favicon.png'}  /></a>
-            <InternalLink key={1} instance={this.props.instance} context={referenceContext} site={this.props.item.site} text={this.props.item.title} /> — <ResolvedText context={referenceContext} instance={this.props.instance} text={this.props.item.text} site={this.props.site} slug={this.props.slug} />
+            <InternalLink key={1} {...this.props} context={referenceContext} site={this.props.item.site} text={this.props.item.title} /> — <ResolvedText {...this.props} context={referenceContext} text={this.props.item.text} />
           </p>
         </div>
     )
@@ -373,7 +373,7 @@ var Video = React.createClass({
     return (
       <div className="item">
         {player}
-        <i><ResolvedText context={this.props.context} instance={this.props.instance} text={result.caption} /></i>
+        <i><ResolvedText text={result.caption} {...this.props} /></i>
       </div>
     )
   }
@@ -433,22 +433,22 @@ var ResolvedText = React.createClass({
           return text.split(/(\[https?:.*? .*?\]|\[\[.*?\]\])/)
         }
 
-        function span(instance, context, site, slug) {
+        function span(props) {
           return function (split, index) {
             if (split.startsWith("[[")) {
-              return <InternalLink key={index} instance={instance} context={context} text={split.slice(2, -2)} site={site} />
+              return <InternalLink key={index} {...props} text={split.slice(2, -2)} />
             }
             else if (split.startsWith("[")) {
-              return <ExternalLink key={index} text={split} />
+              return <ExternalLink key={index} {...props} text={split} />
             }
             else {
-              return <PlainText key={index} text={split} />
+              return <PlainText key={index} {...props} text={split} />
             }
           }
         }
 
         var spans = splitText(this.props.text)
-        return <span>{spans.map(span(this.props.instance, this.props.context, this.props.site, this.props.slug))}</span>
+        return <span>{spans.map(span(this.props))}</span>
     }
 })
 
