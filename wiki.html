@@ -67,6 +67,27 @@ iframe {
   top: -.8em;
 }
 
+/* Portrait and Landscape - iPhone 6 */
+@media only screen
+  and (min-device-width: 375px)
+  and (max-device-width: 667px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+  .lineup {
+    display: block;
+  }
+
+  .page {
+    position: fixed;
+    margin: 0px;
+    width: 85%;
+    background: white;
+  }
+
+  body {
+    background: green
+  }
+}
+
 </style>
 
 <div id="content"></div>
