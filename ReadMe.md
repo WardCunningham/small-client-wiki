@@ -25,7 +25,7 @@ We expect there will be many deployment options with different tradeoffs.
 
 We're happy to have issues or pull-requests.
 
-- collaborators can be pushed to mater if pair-programming and reviewed before post.
+- collaborators can be pushed to master if pair-programming and reviewed before post.
 - collaborators working solo should push to a branch and pull-request for a review and merge.
 - contributors should fork and pull-request from their own repo.
 
