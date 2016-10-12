@@ -5,7 +5,7 @@ We will share only json schema with current fedwiki.
 We will write conventional react code and give up if we can't make that work.
 We will build this into a single js file that includes all available plugins also rewritten in react.
 
-See our [work in progress](http://jasonrclark.com/small-client-wiki/wiki.html) served from github pages.
+See our [work in progress](http://read.wiki.org) served from github pages.
 
 # build
 
