@@ -498,6 +498,7 @@ var MarkedText = React.createClass({
   rawMarkup: function() {
     var md = new Remarkable('full')
     var rawMarkup = md.render(this.props.text.toString())
+    rawMarkup = rawMarkup.replace(/\<h[12]/gi, '<h3')
     return { __html: rawMarkup }
   },
   
