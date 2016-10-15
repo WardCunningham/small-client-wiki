@@ -95,6 +95,7 @@ iframe {
 <script src="https://fb.me/react-dom-0.14.6.js"></script>
 <script src="http://fb.me/JSXTransformer-0.12.1.js"></script>
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script src="https://unpkg.com/remarkable@1.7.1/dist/remarkable.min.js"></script>
 <script type="text/jsx">
 
 var Lineup = React.createClass({
@@ -314,6 +315,16 @@ var Image = React.createClass({
   }
 })
 
+var Markdown = React.createClass({
+  render: function() {
+    return (
+      <div className="item" className={this.props.item.type}>
+        <MarkdownText {...this.props} text={this.props.item.text} />
+      </div>
+    )
+  }
+})
+
 var PageFold = React.createClass({
   render: function() {
     return <div className="item pagefold">
@@ -365,19 +376,28 @@ var Video = React.createClass({
           result.key = match[2]
         }
         else {
-          result.caption += line + " "
+          match = line.match(/^\s*([A-Z0-9]+)\s+([A-Za-z\,]+)\s+([\w\.\-\/+0-9]+)\s*$/)
+          if (match) {
+            result.player = match[1] + '/' + match[2]
+            result.key = match[3]
+          }
+          else {
+            result.caption += line + " "
+          }
         }
       }
       return result;
     }
 
     var players = {
-      "YOUTUBE": "http://www.youtube.com/embed/#{key}?rel=0",
+      "YOUTUBE": "http://www.youtube-nocookie.com/embed/#{key}?rel=0",
+      "YOUTUBE/PLAYLIST": "https://www.youtube-nocookie.com/embed/videoseries?list=#{key}",
       "VIMEO": "http://player.vimeo.com/video/#{key}?title=0&amp;byline=0&amp;portrait=0",
       "TED": "https://embed-ssl.ted.com/talks/#{key}.html"
     }
 
     var lookupUrl = function(result) {
+      
       var template = players[result.player]
       if (template == undefined)
         return undefined
@@ -412,6 +432,7 @@ var MissingPlugin = React.createClass({
 
 var plugins = {
   "image": Image,
+  "markdown": Markdown,
   "pagefold": PageFold,
   "paragraph": Paragraph,
   "reference": Reference,
@@ -464,6 +485,46 @@ var ResolvedText = React.createClass({
             }
             else {
               return <PlainText key={index} {...props} text={split} />
+            }
+          }
+        }
+
+        var spans = splitText(this.props.text)
+        return <span>{spans.map(span(this.props))}</span>
+    }
+})
+
+var MarkedText = React.createClass({
+  rawMarkup: function() {
+    var md = new Remarkable('full')
+    var rawMarkup = md.render(this.props.text.toString())
+    rawMarkup = rawMarkup.replace(/\<h[12]/gi, '<h3')
+    rawMarkup = rawMarkup.replace(/\<li\>\[x\]/gi, '<li>&#9745; ')
+    rawMarkup = rawMarkup.replace(/\<li\>\[ \]/gi, '<li>&#9744; ')
+    return { __html: rawMarkup }
+  },
+  
+  render: function(){
+        return <span dangerouslySetInnerHTML={this.rawMarkup()} />
+    }
+})
+
+var MarkdownText = React.createClass({
+    render: function(){
+        function splitText(text) {
+          return text.split(/(\[https?:.*? .*?\]|\[\[.*?\]\])/)
+        }
+
+        function span(props) {
+          return function (split, index) {
+            if (split.startsWith("[[")) {
+              return <InternalLink key={index} {...props} text={split.slice(2, -2)} />
+            }
+            else if (split.startsWith("[")) {
+              return <ExternalLink key={index} {...props} text={split} />
+            }
+            else {
+              return <MarkedText key={index} {...props} text={split} />
             }
           }
         }
