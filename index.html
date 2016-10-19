@@ -534,7 +534,7 @@ var MarkdownText = React.createClass({
     
     onClick: function(e) {
         var target = e.target
-        if (target.querySelectorAll('a.internal')) {
+        if (target.tagName.toLowerCase() === 'a' && target.className.toLowerCase() === 'internal') {
             var detail = { context: this.props.context, instance: this.props.instance, title: target.getAttribute('title'), slug: target.getAttribute('data-page-name') }
             var eventType = e.nativeEvent.shiftKey ? 'appendToLineup' : 'replaceInLineup'
             var event = new CustomEvent(eventType, { detail: detail })
