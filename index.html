@@ -66,6 +66,13 @@ iframe {
   position: relative;
   top: -.8em;
 }
+.ready {
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 5px;
+  background-color: white;
+}
 
 /* Portrait and Landscape - iPhone 6 */
 @media only screen
@@ -149,14 +156,14 @@ var Lineup = React.createClass({
     console.log("Detail: " + detail)
     var newLineup = this.state.lineup.slice(0);
     newLineup.push(this.createInstance(detail.context, detail.site, detail.slug, detail.title))
-    this.setState({ lineup: newLineup })
+    this.setState({ lineup: newLineup, ready: 'append' })
   },
   replaceInLineup: function(event) {
     var detail = event.detail
     var lastDesiredIndex = this.state.lineup.findIndex(function(item) { return item.id == detail.instance.id})
     var newLineup = this.state.lineup.slice(0, lastDesiredIndex + 1);
     newLineup.push(this.createInstance(detail.context, detail.site, detail.slug, detail.title))
-    this.setState({ lineup: newLineup })
+    this.setState({ lineup: newLineup, ready: 'replace' })
   },
   pageAvailable: function(event) {
     var detail = event.detail
@@ -188,6 +195,7 @@ var Lineup = React.createClass({
 
     if (!loading) {
       window.location.hash = "#" + this.urlFromInstances(this.state.lineup)
+      this.state.ready = 'done'
     }
   },
   render: function() {
@@ -203,7 +211,10 @@ var Lineup = React.createClass({
       }
     }
 
-    return <div className="lineup">{this.state.lineup.map(toSegment)}</div>
+    return <div>
+        <div className="lineup">{this.state.lineup.map(toSegment)}</div>
+        <div className="ready">{this.state.ready||"starting"}</div>
+        </div>
   }
 })
 
@@ -466,7 +477,7 @@ var InternalLink = React.createClass({
   },
   render: function() {
     var contextTitle = this.props.context.join(" ⇒ ")
-    return <a href="#" title={contextTitle} onClick={this.handleClick}>{this.props.text}</a>
+    return <a href="#" className="internal" title={contextTitle} onClick={this.handleClick}>{this.props.text}</a>
   }
 })
 
