@@ -236,18 +236,19 @@ var Resolution = React.createClass({
         }
       }
 
-      this.serverRequest = $.get(source, function (result) {
-        var resolvedContext = [site]
-        var journal = result.journal || []
-        journal.reverse().forEach(ammend(resolvedContext))
+      this.serverRequest = $.getJSON(source)
+        .done( function (result) {
+            var resolvedContext = [site]
+            var journal = result.journal || []
+            journal.reverse().forEach(ammend(resolvedContext))
 
-        var detail = { id: that.props.instance.id, context: resolvedContext,
-                       site: site, slug: that.props.instance.slug,
-                       title: result.title, story: result.story }
-        var event = new CustomEvent('pageAvailable', { detail: detail })
-        window.dispatchEvent(event)
-      }).fail(function (result) {
-        that.resolve(context, slug, ++i)
+            var detail = { id: that.props.instance.id, context: resolvedContext,
+                           site: site, slug: that.props.instance.slug,
+                           title: result.title, story: result.story }
+            var event = new CustomEvent('pageAvailable', { detail: detail })
+            window.dispatchEvent(event)})
+        .fail(function (result) {
+            that.resolve(context, slug, ++i)
       });
     },
     componentDidMount: function() {
@@ -269,17 +270,17 @@ var Remote = React.createClass({
         }
 
         var source = 'http://' + this.props.instance.site + '/' + this.props.instance.slug + '.json'
-        this.serverRequest = $.get(source, function (result) {
-          var context = [this.props.instance.site]
-          var journal = result.journal || []
-          journal.reverse().forEach(ammend(context))
-
-          var detail = { id: this.props.instance.id, context: context,
-                         site: this.props.instance.site, slug: this.props.instance.slug,
-                         title: result.title, story: result.story }
-          var event = new CustomEvent('pageAvailable', { detail: detail })
-          window.dispatchEvent(event)
-        }.bind(this));
+        this.serverRequest = $.getJSON(source)
+            .done( function (result) {
+              var context = [this.props.instance.site]
+              var journal = result.journal || []
+              journal.reverse().forEach(ammend(context))
+              var detail = { id: this.props.instance.id, context: context,
+                             site: this.props.instance.site, slug: this.props.instance.slug,
+                             title: result.title, story: result.story }
+              var event = new CustomEvent('pageAvailable', { detail: detail })
+              window.dispatchEvent(event)
+            }.bind(this));
     },
     componentWillUnmount: function() {
         this.serverRequest.abort();
@@ -544,7 +545,7 @@ var MarkdownText = React.createClass({
     
     onClick: function(e) {
         var target = e.target
-        if (target.querySelectorAll('a.internal')) {
+        if (target.tagName.toLowerCase() === 'a' && target.className.toLowerCase() === 'internal') {
             var detail = { context: this.props.context, instance: this.props.instance, title: target.getAttribute('title'), slug: target.getAttribute('data-page-name') }
             var eventType = e.nativeEvent.shiftKey ? 'appendToLineup' : 'replaceInLineup'
             var event = new CustomEvent(eventType, { detail: detail })
