@@ -311,7 +311,6 @@ var Page = React.createClass({
         clientY: changedTouch.clientY
       }
       this.setState(newState)
-      event.preventDefault()
     },
     handleTouchMove: function(event) {
       var changedTouch = event.nativeEvent.changedTouches[0]
