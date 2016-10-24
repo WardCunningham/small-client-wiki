@@ -311,6 +311,7 @@ var Page = React.createClass({
         clientY: changedTouch.clientY
       }
       this.setState(newState)
+      event.preventDefault()
     },
     handleTouchMove: function(event) {
       var changedTouch = event.nativeEvent.changedTouches[0]
@@ -324,6 +325,7 @@ var Page = React.createClass({
         left: this.state.touch.original.left + deltaX
       }
       this.setState(newState)
+      event.preventDefault()
     },
     render: function(){
         function item(instance) {
