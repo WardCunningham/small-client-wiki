@@ -98,6 +98,8 @@ iframe {
 }
 
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+
 
 <div id="content"></div>
 <script src="https://fb.me/react-0.14.6.js"></script>
@@ -105,6 +107,8 @@ iframe {
 <script src="http://fb.me/JSXTransformer-0.12.1.js"></script>
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 <script src="https://cdn.rawgit.com/showdownjs/showdown/1.4.3/dist/showdown.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+
 <script type="text/jsx">
 
 var Lineup = React.createClass({
@@ -443,7 +447,7 @@ var Video = React.createClass({
     }
 
     var lookupUrl = function(result) {
-      
+
       var template = players[result.player]
       if (template == undefined)
         return undefined
@@ -476,13 +480,128 @@ var MissingPlugin = React.createClass({
   }
 })
 
+var Map = React.createClass({
+
+  getInitialState: function() {
+    return {
+      map : null,
+      markerGroup : null
+    }
+  },
+
+  componentDidMount: function() {
+
+    let tile = this.props.item.tile || "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
+        tileCredits  = this.props.item.tileCredits || '<a href="http://osm.org/copyright">OSM</a>'
+
+    let mapElement = ReactDOM.findDOMNode(this.refs.map);
+    let map = L.map(mapElement, {
+          attributionControl: false,
+          layers : [
+            L.tileLayer(tile, {
+                attribution: tileCredits
+              })
+          ]
+    })
+
+    map.fitWorld(); // default view
+
+    this.setState({
+      map : map,
+      markerGroup :  L.layerGroup().addTo(map)
+    })
+  },
+
+  marker: function(text) {
+
+    function deg(m) {
+      var num = +m[0] + m[1] / 60 + (m[2] || 0) / 60 / 60;
+      return (m[3].match(/[SW]/i)) ? -num : num
+    }
+
+    const decimal = /^(-?\d{1,3}\.?\d*)[, ] *(-?\d{1,3}\.?\d*)\s*(.*)$/;
+    const nautical = /^(\d{1,3})°(\d{1,2})'(\d*\.\d*)?"?([NS]) (\d{1,3})°(\d{1,2})'(\d*\.\d*)?"?([EW]) (.*)$/i;
+
+    if (m = decimal.exec(text)) {
+      return {
+        lat: +m[1],
+        lon: +m[2],
+        label: m[3]
+      };
+    }
+    else if (m = nautical.exec(text)) {
+      return {
+        lat: deg(m.slice(1, 5)),
+        lon: deg(m.slice(5, 9)),
+        label: m[9]
+      };
+    }
+    return null;
+  },
+
+  parse : function(text) {
+
+    let captions = [],
+      markers = []
+
+    text.split(/\n/).forEach( line => {
+      if (m = this.marker(line))
+        markers.push(m);
+      else if (
+        /^BOUNDARY *(.*)?$/.exec(line)
+       || /^LINEUP/.test(line)
+       || /^WEBLINK *(.*)$/.exec(line)
+      )
+        console.log("Boundary, Lineup and Weblink not implemented yet.")
+      else
+        captions.push(line)
+    })
+
+    return  {
+      markers,
+      caption: captions.join('<br>')
+    };
+
+  },
+
+  render: function() {
+
+    let geo = this.parse(this.props.item.text),
+      zoom = this.props.item.zoom || 4
+
+    if(this.state.map && this.state.markerGroup && geo.markers.length) {
+
+      let markers = geo.markers.map( m =>
+        L.marker([m.lat, m.lon])
+          .bindPopup( m.label )
+          .openPopup()
+          .addTo(this.state.markerGroup)
+      )
+
+      let centroid = new L.featureGroup(markers).getBounds().getCenter()
+      this.state.map.setView(centroid, zoom)
+
+    }
+
+    const style = {
+      width: "100%",
+      height: "250px"
+    }
+
+    return (
+      <div ref="map" className="item map" style={style}></div>
+    )
+  }
+})
+
 var plugins = {
   "image": Image,
   "markdown": Markdown,
   "pagefold": PageFold,
   "paragraph": Paragraph,
   "reference": Reference,
-  "video": Video
+  "video": Video,
+  "map" : Map
 }
 
 var PlainText = React.createClass({
@@ -566,7 +685,7 @@ var MarkdownText = React.createClass({
                 }
             ]
         }
-        
+
         var converter = new showdown.Converter({
             headerLevelStart: 3,
             tasklists: true,
@@ -575,7 +694,7 @@ var MarkdownText = React.createClass({
         rawMarkup = converter.makeHtml(this.props.text)
         return { __html: rawMarkup}
     },
-    
+
     onClick: function(e) {
         var target = e.target
         if (target.tagName.toLowerCase() === 'a' && target.className.toLowerCase() === 'internal') {
