@@ -571,6 +571,8 @@ var Map = React.createClass({
 
     if(this.state.map && this.state.markerGroup && geo.markers.length) {
 
+      this.state.markerGroup.clearLayers()
+
       let markers = geo.markers.map( m =>
         L.marker([m.lat, m.lon])
           .bindPopup( m.label )
