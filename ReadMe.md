@@ -9,7 +9,11 @@ See our [work in progress](http://read.wiki.org) served from github pages.
 
 # build
 
-tbd
+```
+git clone ...
+npm install
+npm start
+```
 
 # deploy
 
