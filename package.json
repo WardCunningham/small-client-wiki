@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "Read-Only React Federated Wiki Browser",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "http-server -p 3030"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WardCunningham/small-client-wiki.git"
@@ -27,6 +23,17 @@
   },
   "homepage": "https://github.com/WardCunningham/small-client-wiki#readme",
   "devDependencies": {
-    "http-server": "^0.9.0"
+    "react-scripts": "0.7.0"
+  },
+  "dependencies": {
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "showdown": "^1.5.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
   }
 }

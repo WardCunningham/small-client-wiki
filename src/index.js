@@ -1,3 +1,9 @@
+import React from 'react'
+import ReactDOM from 'react-dom'
+import showdown from 'showdown'
+
+/* global $ */
+
 var Lineup = React.createClass({
   createInstance: function(context, site, slug, title, story) {
     return {
@@ -12,7 +18,7 @@ var Lineup = React.createClass({
   instancesFromUrl: function(lineupString) {
     var instances = []
     var segments = lineupString.split("/")
-    for (i = 0; i < segments.length; i += 2) {
+    for (var i = 0; i < segments.length; i += 2) {
       instances.push(this.createInstance(undefined, segments[i], segments[i + 1]))
     }
     return instances
@@ -34,7 +40,7 @@ var Lineup = React.createClass({
     return replacement
   },
   getInitialState: function() {
-    initial = window.location.hash.replace("#", "")
+    var initial = window.location.hash.replace("#", "")
     if (initial == "") {
       initial = "small.bay.wiki.org/welcome-visitors"
       window.location.hash = "#" + initial
@@ -84,7 +90,7 @@ var Lineup = React.createClass({
     window.addEventListener("popstate", this.onPopstate, false)
   },
   componentDidUpdate: function() {
-    loading = this.state.lineup.find(function(item) { return item.site == undefined })
+    var loading = this.state.lineup.find(function(item) { return item.site == undefined })
 
     if (!loading) {
       window.location.hash = "#" + this.urlFromInstances(this.state.lineup)
@@ -305,7 +311,7 @@ var Video = React.createClass({
     var parse = function(text) {
       var result = { caption: "" }
       var lines = text.split(/\r\n?|\n/)
-      for (i = 0; i < lines.length; i++) {
+      for (var i = 0; i < lines.length; i++) {
         var line = lines[i]
         var match = line.match(/^\s*([A-Z0-9]+)\s+([\w\.\-\/+0-9]+)\s*$/)
         if (match) {
@@ -463,7 +469,7 @@ var MarkdownText = React.createClass({
             tasklists: true,
             extensions: [ wikiLinks ]
         })
-        rawMarkup = converter.makeHtml(this.props.text)
+        var rawMarkup = converter.makeHtml(this.props.text)
         return { __html: rawMarkup}
     },
     
