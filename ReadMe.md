@@ -9,17 +9,26 @@ See our [work in progress](http://read.wiki.org) served from github pages.
 
 # build
 
-tbd
+```
+git clone ...
+npm install
+npm start
+```
 
 # deploy
 
-We hope to render wiki json served from gh-pages.
-We don't know how many limitations we will face but hope to find configurations that are useful.
+We render wiki json served from gh-pages.
+We face some limitations but hope to find configurations that are useful.
 Some concerns we know about.
 - gh-pages must be https, unless accessed as some other domain.
 - gh-pages don't support cors so javascript must come from gh-pages too.
 
-We expect there will be many deployment options with different tradeoffs.
+To deploy in gh-page of this repo
+```
+npm run deploy
+```
+Reconfigure CNAME in /public and "homepage" in package.json for
+other deployments.
 
 # contribute
 

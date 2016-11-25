@@ -1,111 +1,8 @@
-<!-- DOCTYPE HTML -->
-<html>
-<head>
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-  <title>Federated Wiki</title>
-</head>
-<body>
+import React from 'react'
+import ReactDOM from 'react-dom'
+import showdown from 'showdown'
 
-<style>
-.lineup {
-  display: flex;
-  font-family: "Helvetica Neue", Verdana, helvetica, Arial, Sans;
-}
-
-.page {
-  font-size: 15px;
-  width: 275px;
-  margin: 8px;
-  padding: 20px;
-  border: black 1px dotted;
-}
-
-a {
-  text-decoration: none;
-}
-
-iframe {
-  width: 100%;
-}
-
-.missing {
-  background: #eee;
-  padding: 0.8em
-}
-
-.caption {
-  color: gray;
-  text-align: center;
-  text-size: small;
-}
-
-.surround {
-  background: #eee;
-  padding: 0.8em;
-}
-
-.surround img {
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.item.pagefold {
-  border-top: 2px solid lightgray;
-  clear: both;
-  height: 10px;
-  margin-top: 24px;
-  position: relative;
-  text-align: center;
-}
-
-.item.pagefold span {
-  background: white;
-  color: gray;
-  display: inline-block;
-  padding: 0px .5em;
-  position: relative;
-  top: -.8em;
-}
-.ready {
-  position: fixed;
-  top: 0;
-  left: 0;
-  padding: 5px;
-  background-color: white;
-}
-
-/* Portrait and Landscape - iPhone 6 */
-@media only screen
-  and (min-device-width: 375px)
-  and (max-device-width: 667px)
-  and (-webkit-min-device-pixel-ratio: 2) {
-  .lineup {
-    display: block;
-    position: relative;
-  }
-
-  .page {
-    position: absolute;
-    margin: 0px;
-    width: 85%;
-    background: white;
-  }
-
-  body {
-    background: green;
-    margin: 0px;
-  }
-}
-
-</style>
-
-<div id="content"></div>
-<script src="https://fb.me/react-0.14.6.js"></script>
-<script src="https://fb.me/react-dom-0.14.6.js"></script>
-<script src="http://fb.me/JSXTransformer-0.12.1.js"></script>
-<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
-<script src="https://cdn.rawgit.com/showdownjs/showdown/1.4.3/dist/showdown.min.js"></script>
-<script type="text/jsx">
+/* global $ */
 
 var Lineup = React.createClass({
   createInstance: function(context, site, slug, title, story) {
@@ -121,7 +18,7 @@ var Lineup = React.createClass({
   instancesFromUrl: function(lineupString) {
     var instances = []
     var segments = lineupString.split("/")
-    for (i = 0; i < segments.length; i += 2) {
+    for (var i = 0; i < segments.length; i += 2) {
       instances.push(this.createInstance(undefined, segments[i], segments[i + 1]))
     }
     return instances
@@ -143,7 +40,7 @@ var Lineup = React.createClass({
     return replacement
   },
   getInitialState: function() {
-    initial = window.location.hash.replace("#", "")
+    var initial = window.location.hash.replace("#", "")
     if (initial == "") {
       initial = "small.bay.wiki.org/welcome-visitors"
       window.location.hash = "#" + initial
@@ -193,7 +90,7 @@ var Lineup = React.createClass({
     window.addEventListener("popstate", this.onPopstate, false)
   },
   componentDidUpdate: function() {
-    loading = this.state.lineup.find(function(item) { return item.site == undefined })
+    var loading = this.state.lineup.find(function(item) { return item.site == undefined })
 
     if (!loading) {
       window.location.hash = "#" + this.urlFromInstances(this.state.lineup)
@@ -414,7 +311,7 @@ var Video = React.createClass({
     var parse = function(text) {
       var result = { caption: "" }
       var lines = text.split(/\r\n?|\n/)
-      for (i = 0; i < lines.length; i++) {
+      for (var i = 0; i < lines.length; i++) {
         var line = lines[i]
         var match = line.match(/^\s*([A-Z0-9]+)\s+([\w\.\-\/+0-9]+)\s*$/)
         if (match) {
@@ -572,7 +469,7 @@ var MarkdownText = React.createClass({
             tasklists: true,
             extensions: [ wikiLinks ]
         })
-        rawMarkup = converter.makeHtml(this.props.text)
+        var rawMarkup = converter.makeHtml(this.props.text)
         return { __html: rawMarkup}
     },
     
@@ -596,8 +493,8 @@ var Footer = React.createClass({
     render: function(){
         function li (detail, index){ return (<li key={index}>{detail}</li>); }
         return (
-        	<div>
-            	{this.props.details.map(li)}
+          <div>
+              {this.props.details.map(li)}
           </div>
         );
     }
@@ -607,7 +504,3 @@ ReactDOM.render(
   <Lineup />,
   document.getElementById('content')
 );
-
-</script>
-</body>
-</html>
