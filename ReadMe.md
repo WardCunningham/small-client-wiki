@@ -7,6 +7,8 @@ We will build this into a single js file that includes all available plugins als
 
 See our [work in progress](http://read.wiki.org) served from github pages.
 
+See also our [vertical lineup](c2.com/wiki/vertical-lineup.pdf) design for narrow touch screens.
+
 # build
 
 ```
